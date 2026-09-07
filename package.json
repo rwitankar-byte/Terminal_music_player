@@ -1,0 +1,10 @@
+{
+  "name": "terminal-music-player",
+  "version": "1.0.0",
+  "description": "A simple CLI music player for macOS.",
+  "main": "player.js",
+  "scripts": {
+    "start": "node player.js"
+  },
+  "license": "MIT"
+}
