@@ -75,10 +75,11 @@ The project is currently only initialized. Playback, song selection, keyboard co
 ├── player.js      # Initial application entry point
 ├── package.json   # Project metadata and npm scripts
 ├── .gitignore     # Files ignored by Git
+├── songs/         # Sample audio files used for future playback work
 └── README.md      # Project documentation
 ```
 
-Audio files may be kept in the `songs/` directory during development.
+The `songs/` directory contains the audio files that will be used by the player in a later playback implementation.
 
 ## Current Status
 
