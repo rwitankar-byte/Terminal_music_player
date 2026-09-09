@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
+const Mpv = require('node-mpv');
 
 const songsDirectory = path.join(__dirname, 'songs');
 const playableExtensions = new Set(['.mp3', '.m4a', '.wav', '.aiff', '.aac', '.flac', '.ogg']);
@@ -12,17 +14,63 @@ function formatSongName(filename) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+let audioPlayer = null;
+let playingIndex = null;
+let playbackMessage = '';
+
 function renderSongs(songs, selectedIndex) {
   process.stdout.write('\x1b[2J\x1b[H');
   console.log('🎵 Terminal Music Player\n');
 
   songs.forEach((song, index) => {
     const marker = index === selectedIndex ? '>' : ' ';
-    console.log(`${marker} ${formatSongName(song)}`);
+    const playing = index === playingIndex ? ' (playing)' : '';
+    console.log(`${marker} ${formatSongName(song)}${playing}`);
   });
+
+  if (playbackMessage) {
+    console.log(`\n${playbackMessage}`);
+  }
 
   console.log('\n↑/↓ to navigate');
   console.log('Press Ctrl+C to quit');
+}
+
+function stopPlayback() {
+  if (audioPlayer) {
+    audioPlayer.quit();
+    audioPlayer = null;
+  }
+  playingIndex = null;
+}
+
+function playSong(songs, selectedIndex) {
+  const songPath = path.join(songsDirectory, songs[selectedIndex]);
+
+  if (!fs.existsSync(songPath)) {
+    playbackMessage = 'The selected audio file could not be found.';
+    renderSongs(songs, selectedIndex);
+    return;
+  }
+
+  if (spawnSync('mpv', ['--version'], { stdio: 'ignore' }).status !== 0) {
+    playbackMessage = 'MPV is not installed. Install it with: brew install mpv';
+    renderSongs(songs, selectedIndex);
+    return;
+  }
+
+  try {
+    stopPlayback();
+    audioPlayer = new Mpv({ audio_only: true });
+    playingIndex = selectedIndex;
+    playbackMessage = `Playing: ${formatSongName(songs[selectedIndex])}`;
+    renderSongs(songs, selectedIndex);
+    audioPlayer.load(songPath);
+  } catch (error) {
+    stopPlayback();
+    playbackMessage = 'The selected song could not be played.';
+    renderSongs(songs, selectedIndex);
+  }
 }
 
 function startNavigation(songs) {
@@ -41,6 +89,7 @@ function startNavigation(songs) {
   process.stdin.on('data', (key) => {
     if (key === '\u0003') {
       process.stdin.setRawMode(false);
+      stopPlayback();
       process.exit();
     }
 
@@ -50,6 +99,11 @@ function startNavigation(songs) {
 
     if (key === '\u001b[B') {
       selectedIndex = Math.min(songs.length - 1, selectedIndex + 1);
+    }
+
+    if (key === '\r') {
+      playSong(songs, selectedIndex);
+      return;
     }
 
     renderSongs(songs, selectedIndex);

@@ -4,11 +4,14 @@ A simple command-line music player for macOS, built with Node.js. The project is
 
 ## Features
 
-The following features are planned but are not implemented yet:
+Implemented:
 
 - Display a list of songs
 - Navigate the song list with keyboard arrow keys
 - Select and play a song
+
+Planned:
+
 - Pause and resume playback
 - Play the next or previous song
 - Skip forward or backward by 10 seconds
@@ -16,10 +19,14 @@ The following features are planned but are not implemented yet:
 
 ## Planned Controls
 
-These controls are planned and do not work yet:
+These controls are available now:
 
 - `↑` / `↓`: navigate songs
 - `Enter`: select/play
+- `Ctrl+C`: quit safely
+
+These controls are planned but do not work yet:
+
 - `Space`: play/pause
 - `→`: skip forward 10 seconds
 - `←`: skip backward 10 seconds
@@ -32,8 +39,15 @@ These controls are planned and do not work yet:
 - macOS
 - Node.js
 - npm
+- MPV
 
-Additional requirements, if any, will be documented after the audio library is selected.
+The player uses the Node.js `node-mpv` package, which requires the MPV command-line player.
+
+Install MPV on macOS with Homebrew:
+
+```bash
+brew install mpv
+```
 
 ## Installation
 
@@ -53,7 +67,7 @@ Start the player with:
 npm start
 ```
 
-The project is currently only initialized. Playback, song selection, keyboard controls, and terminal interaction have not been implemented yet.
+Use `↑` / `↓` to highlight a song, then press `Enter` to play it. Press `Ctrl+C` to quit safely.
 
 ## Development Roadmap
 
@@ -72,15 +86,15 @@ The project is currently only initialized. Playback, song selection, keyboard co
 
 ```text
 .
-├── player.js      # Initial application entry point
+├── player.js      # Application entry point and player logic
 ├── package.json   # Project metadata and npm scripts
 ├── .gitignore     # Files ignored by Git
-├── songs/         # Sample audio files used for future playback work
+├── songs/         # Audio files available to the player
 └── README.md      # Project documentation
 ```
 
-The `songs/` directory contains the audio files that will be used by the player in a later playback implementation.
+The `songs/` directory contains the audio files discovered and played by the application.
 
 ## Current Status
 
-This is the initial project setup. The actual music player functionality will be added incrementally in later commits.
+The player can now discover songs, navigate the list, and play the highlighted song. Pause/resume, next/previous, seeking, and further playback polish will be added incrementally in later commits.
