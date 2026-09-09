@@ -16,6 +16,7 @@ function formatSongName(filename) {
 
 let audioPlayer = null;
 let playingIndex = null;
+let paused = false;
 let playbackMessage = '';
 
 function renderSongs(songs, selectedIndex) {
@@ -24,8 +25,8 @@ function renderSongs(songs, selectedIndex) {
 
   songs.forEach((song, index) => {
     const marker = index === selectedIndex ? '>' : ' ';
-    const playing = index === playingIndex ? ' (playing)' : '';
-    console.log(`${marker} ${formatSongName(song)}${playing}`);
+    const state = index === playingIndex ? (paused ? ' (paused)' : ' (playing)') : '';
+    console.log(`${marker} ${formatSongName(song)}${state}`);
   });
 
   if (playbackMessage) {
@@ -42,6 +43,7 @@ function stopPlayback() {
     audioPlayer = null;
   }
   playingIndex = null;
+  paused = false;
 }
 
 function playSong(songs, selectedIndex) {
@@ -63,6 +65,7 @@ function playSong(songs, selectedIndex) {
     stopPlayback();
     audioPlayer = new Mpv({ audio_only: true });
     playingIndex = selectedIndex;
+    paused = false;
     playbackMessage = `Playing: ${formatSongName(songs[selectedIndex])}`;
     renderSongs(songs, selectedIndex);
     audioPlayer.load(songPath);
@@ -71,6 +74,30 @@ function playSong(songs, selectedIndex) {
     playbackMessage = 'The selected song could not be played.';
     renderSongs(songs, selectedIndex);
   }
+}
+
+function togglePause(songs, selectedIndex) {
+  if (!audioPlayer || playingIndex === null) {
+    playbackMessage = 'No song is playing.';
+    renderSongs(songs, selectedIndex);
+    return;
+  }
+
+  try {
+    if (paused) {
+      audioPlayer.play();
+      paused = false;
+      playbackMessage = `Playing: ${formatSongName(songs[playingIndex])}`;
+    } else {
+      audioPlayer.pause();
+      paused = true;
+      playbackMessage = `Paused: ${formatSongName(songs[playingIndex])}`;
+    }
+  } catch (error) {
+    playbackMessage = 'The playback state could not be changed.';
+  }
+
+  renderSongs(songs, selectedIndex);
 }
 
 function startNavigation(songs) {
@@ -103,6 +130,11 @@ function startNavigation(songs) {
 
     if (key === '\r') {
       playSong(songs, selectedIndex);
+      return;
+    }
+
+    if (key === ' ') {
+      togglePause(songs, selectedIndex);
       return;
     }
 
