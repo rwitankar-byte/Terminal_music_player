@@ -100,6 +100,25 @@ function togglePause(songs, selectedIndex) {
   renderSongs(songs, selectedIndex);
 }
 
+function changeSong(songs, selectedIndex, direction) {
+  const nextIndex = selectedIndex + direction;
+
+  if (nextIndex < 0) {
+    playbackMessage = 'Already at the first song.';
+    renderSongs(songs, selectedIndex);
+    return selectedIndex;
+  }
+
+  if (nextIndex >= songs.length) {
+    playbackMessage = 'Already at the last song.';
+    renderSongs(songs, selectedIndex);
+    return selectedIndex;
+  }
+
+  playSong(songs, nextIndex);
+  return nextIndex;
+}
+
 function startNavigation(songs) {
   let selectedIndex = 0;
 
@@ -135,6 +154,16 @@ function startNavigation(songs) {
 
     if (key === ' ') {
       togglePause(songs, selectedIndex);
+      return;
+    }
+
+    if (key === 'n') {
+      selectedIndex = changeSong(songs, selectedIndex, 1);
+      return;
+    }
+
+    if (key === 'p') {
+      selectedIndex = changeSong(songs, selectedIndex, -1);
       return;
     }
 
