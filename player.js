@@ -36,8 +36,8 @@ function renderSongs(songs, selectedIndex) {
     console.log(`\n${playbackMessage}`);
   }
 
-  console.log('\n↑/↓ to navigate');
-  console.log('Press Ctrl+C to quit');
+  console.log('\n↑/↓ navigate | Enter play | Space pause/resume');
+  console.log('n next | p previous | ←/→ seek 10s | q quit | Ctrl+C quit');
 }
 
 function stopPlayback() {

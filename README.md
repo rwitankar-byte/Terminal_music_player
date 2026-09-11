@@ -1,6 +1,6 @@
 # Terminal Music Player
 
-A simple command-line music player for macOS, built with Node.js. The project is being developed incrementally, starting with the project setup and adding playback functionality in small, focused steps.
+A simple command-line music player for macOS, built with Node.js and MPV. It discovers audio files from `songs/` and provides keyboard controls for playback.
 
 ## Features
 
@@ -9,30 +9,24 @@ Implemented:
 - Display a list of songs
 - Navigate the song list with keyboard arrow keys
 - Select and play a song
-
-Planned:
-
 - Pause and resume playback
 - Play the next or previous song
 - Skip forward or backward by 10 seconds
 - Quit gracefully and clean up playback resources
 
-## Planned Controls
+## Controls
 
-These controls are available now:
-
-- `↑` / `↓`: navigate songs
-- `Enter`: select/play
-- `Ctrl+C`: quit safely
-
-These controls are planned but do not work yet:
-
-- `Space`: play/pause
-- `→`: skip forward 10 seconds
-- `←`: skip backward 10 seconds
-- `n`: next song
-- `p`: previous song
-- `q`: quit
+```text
+↑ / ↓   Navigate songs
+Enter   Play selected song
+Space   Pause / Resume
+n       Next song
+p       Previous song
+→       Forward 10 seconds
+←       Backward 10 seconds
+q       Quit
+Ctrl+C  Quit
+```
 
 ## Requirements
 
@@ -67,20 +61,28 @@ Start the player with:
 npm start
 ```
 
-Use `↑` / `↓` to highlight a song, then press `Enter` to play it. Press `Ctrl+C` to quit safely.
+Use `↑` / `↓` to highlight a song, then press `Enter` to play it. `Space` pauses and resumes the same MPV playback instance. `n` and `p` switch tracks, while `←` and `→` seek by 10 seconds. Seeking stays within the song boundaries. Press `q` or `Ctrl+C` to quit safely.
+
+## Playback Behavior
+
+- Songs are discovered from the `songs/` directory at startup.
+- Only supported audio extensions are shown; non-audio files are ignored.
+- Selecting another song stops the current track and starts the new one from the beginning.
+- Pause/resume and seeking reuse the same playback instance.
+- MPV is stopped and the terminal input mode is restored when quitting.
 
 ## Development Roadmap
 
-1. Project initialization
-2. Terminal music list
-3. Arrow-key navigation
-4. Song selection and playback
-5. Pause/resume
-6. Next/previous
-7. 10-second seeking
-8. Graceful quit and cleanup
-9. Playback bug fixes
-10. Documentation/polish
+1. Project initialization — complete
+2. Terminal music list — complete
+3. Arrow-key navigation — complete
+4. Song selection and playback — complete
+5. Pause/resume — complete
+6. Next/previous — complete
+7. 10-second seeking — complete
+8. Graceful quit and cleanup — complete
+9. Playback bug fixes — complete
+10. Documentation/polish — complete
 
 ## Project Structure
 
@@ -97,4 +99,4 @@ The `songs/` directory contains the audio files discovered and played by the app
 
 ## Current Status
 
-The player can now discover songs, navigate the list, and play the highlighted song. Pause/resume, next/previous, seeking, and further playback polish will be added incrementally in later commits.
+The core CLI music player is complete. It discovers songs, supports keyboard navigation, plays and controls audio through MPV, and cleans up playback processes on exit.
