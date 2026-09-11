@@ -39,7 +39,11 @@ function renderSongs(songs, selectedIndex) {
 
 function stopPlayback() {
   if (audioPlayer) {
-    audioPlayer.quit();
+    try {
+      audioPlayer.quit();
+    } catch (error) {
+      // The player may already have stopped.
+    }
     audioPlayer = null;
   }
   playingIndex = null;
@@ -62,8 +66,11 @@ function playSong(songs, selectedIndex) {
   }
 
   try {
-    stopPlayback();
-    audioPlayer = new Mpv({ audio_only: true });
+    if (audioPlayer) {
+      audioPlayer.stop();
+    } else {
+      audioPlayer = new Mpv({ audio_only: true });
+    }
     playingIndex = selectedIndex;
     paused = false;
     playbackMessage = `Playing: ${formatSongName(songs[selectedIndex])}`;
@@ -95,6 +102,23 @@ function togglePause(songs, selectedIndex) {
     }
   } catch (error) {
     playbackMessage = 'The playback state could not be changed.';
+  }
+
+  renderSongs(songs, selectedIndex);
+}
+
+function seekSong(songs, selectedIndex, seconds) {
+  if (!audioPlayer || playingIndex === null) {
+    playbackMessage = 'No song is playing.';
+    renderSongs(songs, selectedIndex);
+    return;
+  }
+
+  try {
+    audioPlayer.seek(seconds);
+    playbackMessage = seconds > 0 ? 'Skipped forward 10 seconds.' : 'Skipped backward 10 seconds.';
+  } catch (error) {
+    playbackMessage = 'The song could not be repositioned.';
   }
 
   renderSongs(songs, selectedIndex);
@@ -164,6 +188,16 @@ function startNavigation(songs) {
 
     if (key === 'p') {
       selectedIndex = changeSong(songs, selectedIndex, -1);
+      return;
+    }
+
+    if (key === '\u001b[C') {
+      seekSong(songs, selectedIndex, 10);
+      return;
+    }
+
+    if (key === '\u001b[D') {
+      seekSong(songs, selectedIndex, -10);
       return;
     }
 
