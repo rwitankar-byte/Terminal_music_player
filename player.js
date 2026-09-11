@@ -19,6 +19,8 @@ let playingIndex = null;
 let paused = false;
 let playbackMessage = '';
 let shuttingDown = false;
+let loadingTrack = false;
+let selectedIndex = 0;
 
 function renderSongs(songs, selectedIndex) {
   process.stdout.write('\x1b[2J\x1b[H');
@@ -49,6 +51,7 @@ function stopPlayback() {
   }
   playingIndex = null;
   paused = false;
+  loadingTrack = false;
 }
 
 function quitPlayer() {
@@ -82,10 +85,23 @@ function playSong(songs, selectedIndex) {
   }
 
   try {
+    loadingTrack = true;
     if (audioPlayer) {
       audioPlayer.stop();
     } else {
       audioPlayer = new Mpv({ audio_only: true });
+      audioPlayer.on('started', () => {
+        loadingTrack = false;
+      });
+      audioPlayer.on('stopped', () => {
+        if (loadingTrack || shuttingDown) {
+          return;
+        }
+        playingIndex = null;
+        paused = false;
+        playbackMessage = 'Playback stopped.';
+        renderSongs(songs, selectedIndex);
+      });
     }
     playingIndex = selectedIndex;
     paused = false;
@@ -93,6 +109,7 @@ function playSong(songs, selectedIndex) {
     renderSongs(songs, selectedIndex);
     audioPlayer.load(songPath);
   } catch (error) {
+    loadingTrack = false;
     stopPlayback();
     playbackMessage = 'The selected song could not be played.';
     renderSongs(songs, selectedIndex);
@@ -160,8 +177,6 @@ function changeSong(songs, selectedIndex, direction) {
 }
 
 function startNavigation(songs) {
-  let selectedIndex = 0;
-
   renderSongs(songs, selectedIndex);
 
   if (!process.stdin.isTTY) {
