@@ -18,6 +18,7 @@ let audioPlayer = null;
 let playingIndex = null;
 let paused = false;
 let playbackMessage = '';
+let shuttingDown = false;
 
 function renderSongs(songs, selectedIndex) {
   process.stdout.write('\x1b[2J\x1b[H');
@@ -48,6 +49,21 @@ function stopPlayback() {
   }
   playingIndex = null;
   paused = false;
+}
+
+function quitPlayer() {
+  if (shuttingDown) {
+    return;
+  }
+
+  shuttingDown = true;
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(false);
+  }
+  process.stdin.pause();
+  stopPlayback();
+  process.stdout.write('\n');
+  setTimeout(() => process.exit(0), 100);
 }
 
 function playSong(songs, selectedIndex) {
@@ -158,9 +174,8 @@ function startNavigation(songs) {
 
   process.stdin.on('data', (key) => {
     if (key === '\u0003') {
-      process.stdin.setRawMode(false);
-      stopPlayback();
-      process.exit();
+      quitPlayer();
+      return;
     }
 
     if (key === '\u001b[A') {
@@ -198,6 +213,11 @@ function startNavigation(songs) {
 
     if (key === '\u001b[D') {
       seekSong(songs, selectedIndex, -10);
+      return;
+    }
+
+    if (key === 'q') {
+      quitPlayer();
       return;
     }
 
